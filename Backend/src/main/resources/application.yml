@@ -9,9 +9,9 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://postgres:5432/demo?createDatabaseIfNotExist=true
-    username: root
-    password: root
+    url: jdbc:postgresql://postgres:5432/lifeCalendar?createDatabaseIfNotExist=true
+    username: postgres
+    password: iamadmin
   jpa:
     hibernate:
       ddl-auto: update
