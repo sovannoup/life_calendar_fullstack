@@ -1,15 +1,12 @@
 server:
   port: 3001
-  servlet:
-    context-path: /api
   error:
     include-message: always
     include-binding-errors: always
 
 spring:
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://postgres:5432/lifeCalendar?createDatabaseIfNotExist=true
+    url: jdbc:postgresql://postgresql:5432/lifeCalendar
     username: postgres
     password: iamadmin
   jpa:
