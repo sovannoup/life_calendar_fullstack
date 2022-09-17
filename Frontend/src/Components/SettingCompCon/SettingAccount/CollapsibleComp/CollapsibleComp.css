@@ -1,0 +1,12 @@
+.Collapsible {
+    background-color: #F5F6FA;
+    cursor: pointer;
+    margin-top: 10px;
+    padding: 17px 28px;
+    border-radius: 15px;
+    /* width: 706px */
+}
+.Collapsible__contentInner {
+    margin-top: 10px;
+    /* background-color: black */
+}

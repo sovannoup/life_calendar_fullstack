@@ -1,0 +1,11 @@
+.bx-style {
+    font-size: 40px;
+}
+
+.bx-style:hover {
+    font-size: 50px
+}
+
+/* svg path {
+    fill: antiquewhite;
+} */

@@ -1,0 +1,41 @@
+.loginslide-comp {
+  width: 605px;
+  height: 520px;
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  background-color: #26b9b3;
+}
+
+.loginslide-img-con {
+  width: 310px;
+  height: 350px;
+}
+.loginslide-img {
+  width: 100%;
+}
+
+.loginslide-h1-con {
+  width: 100%;
+  height: 45px;
+}
+.loginslide-h1 {
+  font-family: "Nunito", sans-serif;
+  color: #ffffff;
+  font-size: 30px;
+  text-align: center;
+}
+
+.loginslide-p-con {
+  width: 100%;
+  height: 45px;
+}
+.loginslide-p {
+  font-family: "Nunito", sans-serif;
+  color: #ffffff;
+  font-size: 16px;
+  text-align: center;
+}

@@ -1,0 +1,17 @@
+.invalidmessage-p-error-con {
+  width: 350px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  box-sizing: border-box;
+  background-color: #f8dfe1;
+  margin-bottom: 20px;
+}
+.invalidmessage-p-error {
+  font-family: "Nunito", sans-serif;
+  color: #da5a69;
+  font-size: 0.8rem;
+  line-height: 20px;
+}

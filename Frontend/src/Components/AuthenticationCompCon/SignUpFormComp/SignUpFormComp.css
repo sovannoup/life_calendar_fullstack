@@ -1,0 +1,82 @@
+.signupform-form-comp {
+  width: 350px;
+}
+.signupform-form-label {
+  font-family: "Nunito", sans-serif;
+  color: #545563;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+}
+.signupform-form-input::placeholder {
+  font-family: "Nunito", sans-serif;
+  color: #83859c;
+}
+.signupform-form-input {
+  outline: none !important;
+  font-family: "Nunito", sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  color: #000000;
+  width: 350px;
+  height: 45px;
+  padding-left: 10px;
+  margin-bottom: 30px;
+  border: none;
+  border: 1px solid #c7c8d2;
+  border-radius: 10px;
+  box-sizing: border-box;
+  background-color: #ffffff;
+}
+.signupform-form-input-error {
+  margin-bottom: 0px;
+  border: 1.2px solid red;
+}
+.signupform-form-text-error {
+  font-family: "Nunito", sans-serif;
+  font-size: 0.75rem;
+  text-align: left;
+  color: #fc8181;
+  margin-top: 0.25rem;
+}
+.signupform-form-checkbox-con {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 30px;
+}
+.signupform-form-checkbox {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #c7c8d2;
+  border-radius: 4px;
+  background-color: #ffffff;
+}
+.signupform-form-checkbox:checked {
+  -webkit-appearance: button;
+  -moz-appearance: button;
+  appearance: button;
+}
+.signupform-form-checkbox-text {
+  font-family: "Nunito", sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.signupform-forgetpwd-con {
+  width: 175px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.signupform-form-submit {
+  font-family: "Nunito", sans-serif;
+  color: #ffffff;
+  font-weight: 700;
+  width: 350px;
+  border: none;
+  padding: 0;
+  background-color: #26b9b3;
+}

@@ -1,0 +1,22 @@
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+.side-nav {
+    flex-basis: 70px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    background: blue;
+    min-height: 100%
+}
+
+.right-side {
+    flex: 9;
+    /* background: yellow */
+}
+
+.top-nav {
+    min-height: 80px;
+}
