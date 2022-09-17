@@ -31,5 +31,4 @@ services:
       - backend
       - frontend
     ports:
-      - 443:80
       - 443:443
