@@ -11,14 +11,14 @@ services:
       - POSTGRES_PASSWORD=iamadmin
   backend:
     container_name: backend
-    build: ./backend
+    build: ./Backend
     ports:
       - "3001:3001"
     depends_on:
       - postgres
   frontend:
     container_name: frontend
-    build: ./frontend
+    build: ./Frontend
     ports:
       - "3000:80"
     depends_on:
