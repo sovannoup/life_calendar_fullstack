@@ -1,7 +1,7 @@
 version: '3'
 services:
   postgresql:
-    container_name: life_calendar_postgresql
+    container_name: postgresql
     image: postgres:latest
     ports:
       - "5432:5432"
@@ -17,14 +17,14 @@ services:
     depends_on:
       - postgresql
   frontend:
-    container_name: life_calendar_frontend
+    container_name: frontend
     build: ./Frontend
     ports:
       - "3000:80"
     depends_on:
       - backend
   nginx:
-    container_name: life_calendar_nginx
+    container_name: nginx
     image: proxy
     build: ./.nginx
     depends_on:
