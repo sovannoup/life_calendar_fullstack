@@ -4,6 +4,8 @@ services:
     container_name: postgresql
     image: postgres:latest
     restart: always
+    volumes:
+      - db_data:/var/lib/postgres
     ports:
       - 5432:5432
     environment:
@@ -33,3 +35,6 @@ services:
       - frontend
     ports:
       - 443:443
+
+volumes:
+  db_data: {}
