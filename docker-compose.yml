@@ -20,7 +20,7 @@ services:
     container_name: life_calendar_frontend
     build: ./Frontend
     ports:
-      - "3000:3000"
+      - "3000:80"
     depends_on:
       - backend
   nginx:
@@ -31,5 +31,4 @@ services:
       - backend
       - frontend
     ports:
-      - 3001:3001
       - 443:443
