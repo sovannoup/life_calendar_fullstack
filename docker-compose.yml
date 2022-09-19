@@ -31,4 +31,5 @@ services:
       - backend
       - frontend
     ports:
+      - 3001:3001
       - 443:443
