@@ -10,10 +10,6 @@ services:
       - POSTGRES_DB=lifeCalendar
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=iamadmin
-    networks:
-      - network
-    volumes:
-      - volume:/var/lib/postgresql/data
   backend:
     container_name: backend
     build: ./Backend
@@ -37,9 +33,3 @@ services:
       - frontend
     ports:
       - 443:443
-
-networks:
-  network:
-
-volumes:
-  volume:
