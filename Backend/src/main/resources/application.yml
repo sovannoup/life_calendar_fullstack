@@ -1,5 +1,5 @@
 server:
-  port: 5002
+  port: 3001
   error:
     include-message: always
     include-binding-errors: always

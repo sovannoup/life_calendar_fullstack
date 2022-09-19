@@ -13,14 +13,14 @@ services:
     container_name: backend
     build: ./Backend
     ports:
-      - "3001:5001"
+      - "3001:3001"
     depends_on:
       - postgresql
   frontend:
     container_name: life_calendar_frontend
     build: ./Frontend
     ports:
-      - "3000:5002"
+      - "3000:3000"
     depends_on:
       - backend
   nginx:
@@ -31,5 +31,4 @@ services:
       - backend
       - frontend
     ports:
-      - 80:80
       - 443:443
