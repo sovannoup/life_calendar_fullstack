@@ -10,12 +10,14 @@ com\life_calendar\life_calendar\repo\Authentication\ConfirmTokenRepo.class
 com\life_calendar\life_calendar\service\Authentication\UserService.class
 com\life_calendar\life_calendar\security\WebSecurityConfig.class
 com\life_calendar\life_calendar\controller\api\request\GetUserRequest.class
+com\life_calendar\life_calendar\security\CorsFilter.class
 com\life_calendar\life_calendar\exception\ApiException.class
 com\life_calendar\life_calendar\exception\ApiHandleException.class
 com\life_calendar\life_calendar\model\User.class
 com\life_calendar\life_calendar\LifeCalendarApplication.class
 com\life_calendar\life_calendar\service\Authentication\EmailSenderService.class
 com\life_calendar\life_calendar\model\ConfirmToken.class
+com\life_calendar\life_calendar\controller\api\request\GetSingleNoteRequest.class
 com\life_calendar\life_calendar\repo\NoteRepo\NoteRepo.class
 com\life_calendar\life_calendar\security\PasswordEncoder.class
 com\life_calendar\life_calendar\security\CustomAuthenticationFilter.class
@@ -23,6 +25,7 @@ com\life_calendar\life_calendar\controller\api\request\UserProfileRequest.class
 com\life_calendar\life_calendar\model\Note.class
 com\life_calendar\life_calendar\service\Authentication\NoteService.class
 com\life_calendar\life_calendar\controller\api\request\NoteRequest.class
+com\life_calendar\life_calendar\controller\api\request\GetWeeklyNoteRequest.class
 com\life_calendar\life_calendar\controller\api\request\ResetRequest.class
 com\life_calendar\life_calendar\controller\api\response\LoginResponse.class
 com\life_calendar\life_calendar\controller\api\NoteController.class

@@ -11,12 +11,12 @@ import com.life_calendar.life_calendar.controller.api.response.UserResponse;
 import com.life_calendar.life_calendar.exception.ApiRequestException;
 import com.life_calendar.life_calendar.model.*;
 import com.life_calendar.life_calendar.model.Calendar;
+import com.life_calendar.life_calendar.repo.Authentication.ConfirmTokenRepo;
 import com.life_calendar.life_calendar.repo.Calendar.CalendarRepo;
 import com.life_calendar.life_calendar.repo.NoteRepo.NoteRepo;
 import com.life_calendar.life_calendar.repo.UserRepo;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Not;
 import org.joda.time.DateTime;
 import org.joda.time.Weeks;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +27,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -54,6 +56,7 @@ public class UserService implements UserDetailsService {
     @Autowired
     HttpServletRequest httpServletRequest;
     private final UserRepo userRepo;
+    private final ConfirmTokenRepo confirmTokenRepo;
     private final CalendarRepo calendarRepo;
     private final NoteRepo noteRepo;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -80,46 +83,48 @@ public class UserService implements UserDetailsService {
 
     public Response signup(SignupRequest request){
         User isUser = userRepo.findByEmail(request.getEmail());
-        if(isUser != null)
+        if(isUser != null && isUser.getEnabled())
         {
             throw new ApiRequestException("Email already exist");
         }
         String encodedPass = bCryptPasswordEncoder.encode(request.getPassword());
-        User user = new User(request.getFirstname(),request.getLastname(),request.getEmail(), request.getBirthday(), encodedPass, UserRole.USER);
-
-        Algorithm algorithm = Algorithm.HMAC256("yUl7speiRyENloYHUGJEFM0OzeBbcskjDB74A2cvZHqjpojeiSceNOARQcJmsev4".getBytes());
-        String token = JWT.create()
-                .withSubject(request.getEmail())
-                .withExpiresAt(new Date(System.currentTimeMillis() + 15 * 24 * 60 * 60 * 1000)) // 15 days
-                .withIssuer("/api/signup")
-                .withClaim("roles",user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-                .sign(algorithm);
-        log.info(user.toString());
-        userRepo.save(user);
-
         String verifyToken = UUID.randomUUID().toString();
-        ConfirmToken confirmToken = new ConfirmToken(
-                verifyToken,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(15),
-                user
-        );
-        log.info("Verify Token is :{}",verifyToken);
+        if(isUser != null && !isUser.getEnabled())
+        {
+            userRepo.updateUser(request.getUsername(), encodedPass, request.getBirthday(), request.getEmail());
+            confirmTokenRepo.updateToken(
+                    verifyToken,
+                    LocalDateTime.now(),
+                    LocalDateTime.now().plusMinutes(15),
+                    isUser.getEmail()
+            );
+        }else
+        {
+            User user = new User(request.getUsername(),request.getEmail(), request.getBirthday(), encodedPass, UserRole.USER);
+            log.info(user.toString());
+            userRepo.save(user);
 
-        confirmTokenService.saveConfirmToken(confirmToken);
+            ConfirmToken confirmToken = new ConfirmToken(
+                    verifyToken,
+                    LocalDateTime.now(),
+                    LocalDateTime.now().plusMinutes(15),
+                    user.getEmail()
+            );
+            log.info("Verify Token is :{}",verifyToken);
+
+            confirmTokenService.saveConfirmToken(confirmToken);
+        }
 
 //        String link = "http://localhost:8080/api/signup/confirm?token=" + token;
 //        emailSenderService.send(request.getEmail(), buildEmail(request.getFirstname(), link));
         Map<String, String> result = new HashMap<>();
-        result.put("token", token);
         result.put("verifyCode", verifyToken);
-        Response res = new Response(
+        return new Response(
                 200,
                 "Signup successfully",
                 result,
                 LocalDateTime.now()
         );
-        return res;
     }
 
     public Response reset(ResetRequest request){
@@ -142,28 +147,178 @@ public class UserService implements UserDetailsService {
 
 //        emailSenderService.send(request.getEmail(), buildEmail(request.getFirstname(), code));
 
-
         Map<String, Object> result = new HashMap<>();
         result.put("verifyCode", code);
-        Response res = new Response(
+        return new Response(
                 200,
                 "Verify code already sent",
                 result,
                 LocalDateTime.now()
         );
-        return res;
     }
 
 
-    public Response getHomeDisplay(String columnId) {
+    public Response getBoxInfo(GetWeeklyNoteRequest request) {
         Map<String, Object> result = new HashMap<>();
+        String email = getEmailFromToken();
 
-        String token = getToken();
-        Algorithm algorithm = Algorithm.HMAC256("yUl7speiRyENloYHUGJEFM0OzeBbcskjDB74A2cvZHqjpojeiSceNOARQcJmsev4".getBytes());
-        JWTVerifier verifier = JWT.require(algorithm).build();
-        DecodedJWT decodedJWT = verifier.verify(token);
-        String email = decodedJWT.getSubject();
+        //        Find user
+        User user = userRepo.findByEmail(email);
+        if(user == null){
+            throw new ApiRequestException("Token is invalid");
+        }
+        String boxId = user.getId() + "/" + request.getStartDate().toString();
 
+        Calendar calendar = calendarRepo.findByBoxIdAndEmail(boxId, email);
+        if(calendar == null) {
+
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+//            java.util.Calendar calen = java.util.Calendar.getInstance();
+//            Date bd = Date.from(user.getBirthday().toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+//            calen.setTime(bd);
+//            calen.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
+//            calen.add(java.util.Calendar.WEEK_OF_YEAR, Integer.parseInt(boxId) + 1);
+//            LocalDate d_from = LocalDate.parse(formatter.format(calen.getTime()));
+//            List<LocalDate> dailyDate = new ArrayList<>();
+//            dailyDate.add(d_from);
+//            for (int i = 0; i < 6; i++) {
+//                calen.add(java.util.Calendar.DAY_OF_WEEK, 1);
+//                LocalDate d = LocalDate.parse(formatter.format(calen.getTime()));
+//                dailyDate.add(d);
+//            }
+//            calen.add(java.util.Calendar.DAY_OF_WEEK, 6);
+//            calen.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
+//            LocalDate d_to = LocalDate.parse(formatter.format(calen.getTime()));
+            calendar = new Calendar(email, boxId, request.getStartDate(), request.getEndDate());
+
+            calendarRepo.save(calendar);
+            List<Note> notes = new ArrayList<>();
+//            notes = noteRepo.findByBoxIdAndEmail(boxId, email);
+//            for (int i = 0; i < 7; i++) {
+//                Note temp = new Note(calendar.getBoxId(), email,dailyDate.get(i), "", LocalDateTime.now());
+//                notes.add(temp);
+//            }
+            result.put("notes", notes);
+        }else {
+            List<Note> notes =  noteRepo.findByBoxIdAndEmail(calendar.getBoxId(), email);
+            result.put("notes", notes);
+
+            //date cal
+//            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+//            java.util.Calendar calen = java.util.Calendar.getInstance();
+//            Date bd = Date.from(user.getBirthday().toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+//            calen.setTime(bd);
+//            calen.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
+//            calen.add(java.util.Calendar.WEEK_OF_YEAR, Integer.parseInt(request.getBoxId()) + 1);
+//            LocalDate d_from = LocalDate.parse(formatter.format(calen.getTime()));
+//            List<LocalDate> dailyDate = new ArrayList<>();
+//            dailyDate.add(d_from);
+//            for (int i = 0; i < 6; i++) {
+//                calen.add(java.util.Calendar.DAY_OF_WEEK, 1);
+//                LocalDate d = LocalDate.parse(formatter.format(calen.getTime()));
+//                dailyDate.add(d);
+//            }
+//            if (!notes.isEmpty()){
+//                result.put("notes", notes);
+//            }else{
+//                notes = new ArrayList<>();
+//                for (int i = 0; i < 7; i++) {
+//                    Note temp = new Note(calendar.getBoxId(), email, dailyDate.get(i), "", LocalDateTime.now());
+//                    notes.add(temp);
+//                }
+//                result.put("notes", notes);
+//            }
+        }
+
+        return new Response(
+                200,
+                "user information",
+                result,
+                LocalDateTime.now()
+        );
+
+
+//Backup
+//        Map<String, Object> result = new HashMap<>();
+//
+//        //        Find user
+//        User user = userRepo.findByEmail(request.getEmail());
+//        if(user == null){
+//            throw new ApiRequestException("Token is invalid");
+//        }
+//
+//        Calendar calendar = calendarRepo.findByBoxIdAndEmail(request.getBoxId(), request.getEmail());
+//        if(calendar == null) {
+//
+//            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+//            java.util.Calendar calen = java.util.Calendar.getInstance();
+//            Date bd = Date.from(user.getBirthday().toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+//            calen.setTime(bd);
+//            calen.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
+//            calen.add(java.util.Calendar.WEEK_OF_YEAR, Integer.parseInt(request.getBoxId()) + 1);
+//            LocalDate d_from = LocalDate.parse(formatter.format(calen.getTime()));
+//            List<LocalDate> dailyDate = new ArrayList<>();
+//            dailyDate.add(d_from);
+//            for (int i = 0; i < 6; i++) {
+//                calen.add(java.util.Calendar.DAY_OF_WEEK, 1);
+//                LocalDate d = LocalDate.parse(formatter.format(calen.getTime()));
+//                dailyDate.add(d);
+//            }
+//            calen.add(java.util.Calendar.DAY_OF_WEEK, 6);
+//            calen.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
+//            LocalDate d_to = LocalDate.parse(formatter.format(calen.getTime()));
+//            calendar = new Calendar(request.getEmail(), request.getBoxId(), d_from, d_to);
+//
+//            calendarRepo.save(calendar);
+//            List<Note> notes = new ArrayList<>();
+//            for (int i = 0; i < 7; i++) {
+//                Note temp = new Note(calendar.getBoxId(), request.getEmail(),dailyDate.get(i), "", LocalDateTime.now());
+//                notes.add(temp);
+//            }
+//            result.put("notes", notes);
+//        }else {
+//            List<Note> notes =  noteRepo.findByBoxIdAndEmail(calendar.getBoxId(), request.getEmail());
+//
+//            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+//            java.util.Calendar calen = java.util.Calendar.getInstance();
+//            Date bd = Date.from(user.getBirthday().toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+//            calen.setTime(bd);
+//            calen.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
+//            calen.add(java.util.Calendar.WEEK_OF_YEAR, Integer.parseInt(request.getBoxId()) + 1);
+//            LocalDate d_from = LocalDate.parse(formatter.format(calen.getTime()));
+//            List<LocalDate> dailyDate = new ArrayList<>();
+//            dailyDate.add(d_from);
+//            for (int i = 0; i < 6; i++) {
+//                calen.add(java.util.Calendar.DAY_OF_WEEK, 1);
+//                LocalDate d = LocalDate.parse(formatter.format(calen.getTime()));
+//                dailyDate.add(d);
+//            }
+//
+//            if (!notes.isEmpty()){
+//                result.put("notes", notes);
+//            }else{
+//                notes = new ArrayList<>();
+//                for (int i = 0; i < 7; i++) {
+//                    Note temp = new Note(calendar.getBoxId(), request.getEmail(), dailyDate.get(i), "", LocalDateTime.now());
+//                    notes.add(temp);
+//                }
+//                result.put("notes", notes);
+//            }
+//        }
+//
+//        return new Response(
+//                200,
+//                "user information",
+//                result,
+//                LocalDateTime.now()
+//        );
+    }
+
+
+    public Response getHomePage(GetWeeklyNoteRequest request) {
+
+        Map<String, Object> result = new HashMap<>();
+        String email = getEmailFromToken();
 
         //        Find user
         User user = userRepo.findByEmail(email);
@@ -171,135 +326,74 @@ public class UserService implements UserDetailsService {
             throw new ApiRequestException("Token is invalid");
         }
 
-        if (columnId == null){
-            UserResponse userInfo = new UserResponse(user.getId(), user.getFirstname(), user.getLastname(), user.getEmail(), user.getBirthday());
-            result.put("userInfo", userInfo);
+        UserResponse userInfo = new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getBirthday());
+        result.put("userInfo", userInfo);
 
 
-//        Get week note
-            java.util.Calendar cal = java.util.Calendar.getInstance();
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            cal.setTime(new Date());
-            cal.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
-
-//        Date From Mon
-            LocalDate d_from = LocalDate.parse(formatter.format(cal.getTime()));
-
-            //Each day of 1 week
-            List<LocalDate> dailyDate = new ArrayList<>();
-            dailyDate.add(d_from);
-            for (int i = 0; i < 6; i++) {
-                cal.add(java.util.Calendar.DAY_OF_WEEK, 1);
-                LocalDate d = LocalDate.parse(formatter.format(cal.getTime()));
-                dailyDate.add(d);
-            }
-
-
-            cal.add(java.util.Calendar.DAY_OF_WEEK, 6);
-            cal.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
-            LocalDate d_to = LocalDate.parse(formatter.format(cal.getTime()));
+////        Get week note
+//        java.util.Calendar cal = java.util.Calendar.getInstance();
+//        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+//        cal.setTime(new Date());
+//        cal.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
+//
+////        Date From Mon
+//        LocalDate d_from = LocalDate.parse(formatter.format(cal.getTime()));
+//
+//        //Each day of 1 week
+//        List<LocalDate> dailyDate = new ArrayList<>();
+//        dailyDate.add(d_from);
+//        for (int i = 0; i < 6; i++) {
+//            cal.add(java.util.Calendar.DAY_OF_WEEK, 1);
+//            LocalDate d = LocalDate.parse(formatter.format(cal.getTime()));
+//            dailyDate.add(d);
+//        }
+//
+//
+//        cal.add(java.util.Calendar.DAY_OF_WEEK, 6);
+//        cal.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
+//        LocalDate d_to = LocalDate.parse(formatter.format(cal.getTime()));
 
 //        Date To Sun
 
-            Calendar calendar = calendarRepo.findByDateFromAndEmail(d_from, email);
-            if(calendar == null) {
-                // weeks from birthday
-                DateTime d1 = new DateTime(DateTime.parse(user.getBirthday().toString()));
-                DateTime d2 = new DateTime();
-
-                String weeksIdOrColumnId = String.valueOf(Weeks.weeksBetween(d1, d2).getWeeks());
-                calendar = new Calendar(email, weeksIdOrColumnId, d_from, d_to);
-                calendarRepo.save(calendar);
-                List<Note> notes = new ArrayList<>();
-                for (int i = 0; i < 7; i++) {
-                    Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), "", LocalDateTime.now()));
-                    notes.add(temp);
-                }
-                result.put("notes", notes);
-            }else {
-                List<Note> notes =  noteRepo.findByColumnIdAndEmail(calendar.getColumnId(), email);
-
-                if (!notes.isEmpty()){
-                    result.put("notes", notes);
-                }else{
-                    notes = new ArrayList<>();
-                    for (int i = 0; i < 7; i++) {
-                        Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), "", LocalDateTime.now()));
-                        notes.add(temp);
-                    }
-                    result.put("notes", notes);
-                }
-            }
-        }else{
-            Calendar calendar = calendarRepo.findByColumnIdAndEmail(columnId, email);
-            if(calendar == null) {
-
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                java.util.Calendar calen = java.util.Calendar.getInstance();
-                Date bd = Date.from(user.getBirthday().toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
-                calen.setTime(bd);
-                calen.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
-                calen.add(java.util.Calendar.WEEK_OF_YEAR, Integer.parseInt(columnId) + 1);
-                LocalDate d_from = LocalDate.parse(formatter.format(calen.getTime()));
-                List<LocalDate> dailyDate = new ArrayList<>();
-                dailyDate.add(d_from);
-                for (int i = 0; i < 6; i++) {
-                    calen.add(java.util.Calendar.DAY_OF_WEEK, 1);
-                    LocalDate d = LocalDate.parse(formatter.format(calen.getTime()));
-                    dailyDate.add(d);
-                }
-                calen.add(java.util.Calendar.DAY_OF_WEEK, 6);
-                calen.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
-                LocalDate d_to = LocalDate.parse(formatter.format(calen.getTime()));
-                calendar = new Calendar(email, columnId, d_from, d_to);
-
-                calendarRepo.save(calendar);
-                List<Note> notes = new ArrayList<>();
-                for (int i = 0; i < 7; i++) {
-                    Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), "", LocalDateTime.now()));
-                    notes.add(temp);
-                }
-                result.put("notes", notes);
-            }else {
-                List<Note> notes =  noteRepo.findByColumnIdAndEmail(calendar.getColumnId(), email);
-
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                java.util.Calendar calen = java.util.Calendar.getInstance();
-                Date bd = Date.from(user.getBirthday().toLocalDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
-                calen.setTime(bd);
-                calen.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
-                calen.add(java.util.Calendar.WEEK_OF_YEAR, Integer.parseInt(columnId) + 1);
-                LocalDate d_from = LocalDate.parse(formatter.format(calen.getTime()));
-                List<LocalDate> dailyDate = new ArrayList<>();
-                dailyDate.add(d_from);
-                for (int i = 0; i < 6; i++) {
-                    calen.add(java.util.Calendar.DAY_OF_WEEK, 1);
-                    LocalDate d = LocalDate.parse(formatter.format(calen.getTime()));
-                    dailyDate.add(d);
-                }
-
-                if (!notes.isEmpty()){
-                    result.put("notes", notes);
-                }else{
-                    notes = new ArrayList<>();
-                    for (int i = 0; i < 7; i++) {
-                        Note temp = noteRepo.save(new Note(calendar.getColumnId(), email ,dailyDate.get(i), "", LocalDateTime.now()));
-                        notes.add(temp);
-                    }
-                    result.put("notes", notes);
-                }
-            }
+        String boxId = user.getId() + "/" + request.getStartDate().toString();
+        Calendar calendar = calendarRepo.findByBoxIdAndEmail(boxId, email);
+        if(calendar == null) {
+            // weeks from birthday
+//            DateTime d1 = new DateTime(DateTime.parse(user.getBirthday().toString()));
+//            DateTime d2 = new DateTime();
+//
+//            String weeksIdOrColumnId = String.valueOf(Weeks.weeksBetween(d1, d2).getWeeks());
+            calendar = new Calendar(email, boxId, request.getStartDate(), request.getEndDate());
+            calendarRepo.save(calendar);
+            List<Note> notes = new ArrayList<>();
+//            for (int i = 0; i < 7; i++) {
+//                Note temp = new Note(calendar.getBoxId(), email ,dailyDate.get(i), "", LocalDateTime.now());
+//                notes.add(temp);
+//            }
+            result.put("notes", notes);
+        }else {
+            List<Note> notes =  noteRepo.findByBoxIdAndEmail(calendar.getBoxId(), email);
+            result.put("notes", notes);
+//            if (!notes.isEmpty()){
+//                result.put("notes", notes);
+//            }else{
+//                notes = new ArrayList<>();
+//                for (int i = 0; i < 7; i++) {
+//                    Note temp = new Note(calendar.getBoxId(), email ,dailyDate.get(i), "", LocalDateTime.now());
+//                    notes.add(temp);
+//                }
+//                result.put("notes", notes);
+//            }
         }
 
-
-        Response res = new Response(
+        return new Response(
                 200,
                 "user information",
                 result,
                 LocalDateTime.now()
         );
-        return res;
     }
+
     @Transactional
     public Response updateUserProfile(UserProfileRequest request){
         if(request.getCurrentPassword() != null && request.getNewPassword() != null){
@@ -309,7 +403,7 @@ public class UserService implements UserDetailsService {
                 throw new ApiRequestException("Invalid current password");
             }
             String newEncode = bCryptPasswordEncoder.encode(request.getNewPassword());
-            userRepo.updateUserProfile(request.getFirstname(), request.getLastname(), newEncode , LocalDateTime.parse(request.getBirthday()), request.getEmail());
+            userRepo.updateUserProfile(request.getUsername(), newEncode , LocalDateTime.parse(request.getBirthday()), request.getEmail());
             log.info("Updating info with password input");
         }else{
             boolean isUser = userRepo.existsByEmail(request.getEmail());
@@ -317,17 +411,16 @@ public class UserService implements UserDetailsService {
             {
                 throw new ApiRequestException("Couldn't find user with that Email");
             }
-            userRepo.updateProfileWithoutPassword(request.getFirstname(), request.getLastname(), LocalDateTime.parse(request.getBirthday()), request.getEmail());
+            userRepo.updateProfileWithoutPassword(request.getUsername(), LocalDateTime.parse(request.getBirthday()), request.getEmail());
             log.info("Updating info without password input");
         }
 
-        Response res = new Response(
+        return new Response(
                 200,
                 "user information updated",
                 null,
                 LocalDateTime.now()
         );
-        return res;
     }
 
     @Transactional
@@ -361,13 +454,12 @@ public class UserService implements UserDetailsService {
             throw new ApiRequestException(e.getMessage());
         }
 
-        Response res = new Response(
+        return new Response(
                 200,
                 "Password already updated",
                 null,
                 LocalDateTime.now()
         );
-        return res;
     }
 
     @Transactional
@@ -380,13 +472,12 @@ public class UserService implements UserDetailsService {
         Path path = Paths.get(context.getRealPath("uploads") + file.getOriginalFilename());
         Files.write(path, bytes);
 
-        Response res = new Response(
+        return new Response(
                 200,
                 "Profile picture already uploaded",
                 null,
                 LocalDateTime.now()
         );
-        return res;
     }
 
     @Transactional
@@ -398,23 +489,27 @@ public class UserService implements UserDetailsService {
 
         LocalDateTime expiredAt = confirmToken.getExpiresAt();
         if(expiredAt.isBefore(LocalDateTime.now())){
-            throw new ApiRequestException("Token expired");
+            throw new ApiRequestException("Confirm Token expired");
         }
 
         confirmTokenService.setConfirmedAt(token);
-        userRepo.enableUser(confirmToken.getUser().getEmail());
-        Response res = new Response(
+        userRepo.enableUser(confirmToken.getEmail());
+
+        return new Response(
                 200,
                 "Account is verified",
                 null,
                 LocalDateTime.now()
         );
-        return res;
     }
 
-    public String getToken(){
+    public String getEmailFromToken(){
         String headerAuth = httpServletRequest.getHeader(AUTHORIZATION);
-        return headerAuth.substring("Bearer ".length());
+        String token =  headerAuth.substring("Bearer ".length());
+        Algorithm algorithm = Algorithm.HMAC256("yUl7speiRyENloYHUGJEFM0OzeBbcskjDB74A2cvZHqjpojeiSceNOARQcJmsev4".getBytes());
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = verifier.verify(token);
+        return decodedJWT.getSubject();
     }
     private String buildEmail(String name, String link) {
         return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +

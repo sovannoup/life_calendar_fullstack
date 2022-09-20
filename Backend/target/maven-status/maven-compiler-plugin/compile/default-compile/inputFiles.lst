@@ -3,10 +3,13 @@ C:\Users\noups\OneDrive\Documents\BootCamp Projects\Life Calendar\life_calendar_
 C:\Users\noups\OneDrive\Documents\BootCamp Projects\Life Calendar\life_calendar_fullstack\Backend\src\main\java\com\life_calendar\life_calendar\repo\UserRepo.java
 C:\Users\noups\OneDrive\Documents\BootCamp Projects\Life Calendar\life_calendar_fullstack\Backend\src\main\java\com\life_calendar\life_calendar\exception\ApiException.java
 C:\Users\noups\OneDrive\Documents\BootCamp Projects\Life Calendar\life_calendar_fullstack\Backend\src\main\java\com\life_calendar\life_calendar\security\PasswordEncoder.java
+C:\Users\noups\OneDrive\Documents\BootCamp Projects\Life Calendar\life_calendar_fullstack\Backend\src\main\java\com\life_calendar\life_calendar\controller\api\request\GetSingleNoteRequest.java
+C:\Users\noups\OneDrive\Documents\BootCamp Projects\Life Calendar\life_calendar_fullstack\Backend\src\main\java\com\life_calendar\life_calendar\security\CorsFilter.java
 C:\Users\noups\OneDrive\Documents\BootCamp Projects\Life Calendar\life_calendar_fullstack\Backend\src\main\java\com\life_calendar\life_calendar\security\CustomAuthenticationFilter.java
 C:\Users\noups\OneDrive\Documents\BootCamp Projects\Life Calendar\life_calendar_fullstack\Backend\src\main\java\com\life_calendar\life_calendar\model\UserRole.java
 C:\Users\noups\OneDrive\Documents\BootCamp Projects\Life Calendar\life_calendar_fullstack\Backend\src\main\java\com\life_calendar\life_calendar\security\WebSecurityConfig.java
 C:\Users\noups\OneDrive\Documents\BootCamp Projects\Life Calendar\life_calendar_fullstack\Backend\src\main\java\com\life_calendar\life_calendar\controller\api\response\LoginResponse.java
+C:\Users\noups\OneDrive\Documents\BootCamp Projects\Life Calendar\life_calendar_fullstack\Backend\src\main\java\com\life_calendar\life_calendar\controller\api\request\GetWeeklyNoteRequest.java
 C:\Users\noups\OneDrive\Documents\BootCamp Projects\Life Calendar\life_calendar_fullstack\Backend\src\main\java\com\life_calendar\life_calendar\controller\api\request\GetUserRequest.java
 C:\Users\noups\OneDrive\Documents\BootCamp Projects\Life Calendar\life_calendar_fullstack\Backend\src\main\java\com\life_calendar\life_calendar\repo\NoteRepo\NoteRepo.java
 C:\Users\noups\OneDrive\Documents\BootCamp Projects\Life Calendar\life_calendar_fullstack\Backend\src\main\java\com\life_calendar\life_calendar\model\User.java

@@ -19,9 +19,8 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("/api/user/")
 @RequiredArgsConstructor
 @Slf4j
 @SecurityRequirement(name = "lifecalendar")
@@ -66,8 +65,8 @@ public class UserController {
         return ResponseEntity.ok().body(userService.updateUserProfile(request));
     }
 
-    @GetMapping(path = "gethomeinfo")
-    public ResponseEntity<Response> getHomeDisplayInfo(@Parameter(ref = "columnId") String columnId) throws IOException, ParseException {
-        return ResponseEntity.ok().body(userService.getHomeDisplay(columnId));
+    @PostMapping(path = "homepage")
+    public ResponseEntity<Response> getHomeDisplayInfo(@Valid @RequestBody GetWeeklyNoteRequest request) throws IOException, ParseException {
+        return ResponseEntity.ok().body(userService.getHomePage(request));
     }
 }
