@@ -1,4 +1,5 @@
 FROM openjdk:8-jdk-alpine
-ARG JAR_FILE=target/life_calendar-0.0.1-SNAPSHOT.jar
-COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+WORKDIR /app/Backend/src
+COPY ./target/life_calendar-0.0.1-SNAPSHOT.jar /app/Backend/src/life_calendar-0.0.1-SNAPSHOT.jar
+EXPOSE 3001
+ENTRYPOINT ["java", "-jar", "life_calendar-0.0.1-SNAPSHOT.jar"]
