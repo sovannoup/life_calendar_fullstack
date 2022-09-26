@@ -77,7 +77,7 @@ public class UserService implements UserDetailsService {
             log.info("User {} found", email);
         }
         Collection<SimpleGrantedAuthority> authority = new ArrayList<>();
-            authority.add(new SimpleGrantedAuthority(user.getUserRole().name()));
+        authority.add(new SimpleGrantedAuthority(user.getUserRole().name()));
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authority);
     }
 
@@ -115,8 +115,16 @@ public class UserService implements UserDetailsService {
             confirmTokenService.saveConfirmToken(confirmToken);
         }
 
-//        String link = "http://localhost:8080/api/signup/confirm?token=" + token;
-//        emailSenderService.send(request.getEmail(), buildEmail(request.getFirstname(), link));
+        Algorithm algorithm = Algorithm.HMAC256("yUl7speiRyENloYHUGJEFM0OzeBbcskjDB74A2cvZHqjpojeiSceNOARQcJmsev4".getBytes());
+        String code = JWT.create()
+                .withSubject(verifyToken)
+                .withExpiresAt(new Date(System.currentTimeMillis() + 15 * 60 * 1000)) // 5 min
+                .withIssuer(request.getEmail())
+                .sign(algorithm);
+
+        String link = "http://178.128.109.23:3001/api/user/signup/confirm?token=" + code;
+        emailSenderService.send(request.getEmail(), buildEmail(request.getUsername(), link));
+
         Map<String, String> result = new HashMap<>();
         result.put("verifyCode", verifyToken);
         return new Response(
@@ -141,11 +149,12 @@ public class UserService implements UserDetailsService {
         userRepo.updateResetCode(request.getEmail(), verifyToken);
         String code = JWT.create()
                 .withSubject(verifyToken)
-                .withExpiresAt(new Date(System.currentTimeMillis() + 5 * 60 * 1000)) // 5 min
+                .withExpiresAt(new Date(System.currentTimeMillis() + 15 * 60 * 1000)) // 5 min
                 .withIssuer(request.getEmail())
                 .sign(algorithm);
 
-//        emailSenderService.send(request.getEmail(), buildEmail(request.getFirstname(), code));
+        String link = "http://178.128.109.23:3001/api/user/updateResetPassword?code=" + code;
+        emailSenderService.send(request.getEmail(), buildEmail(isUserExisted.getUsername(), link));
 
         Map<String, Object> result = new HashMap<>();
         result.put("verifyCode", code);
@@ -441,6 +450,9 @@ public class UserService implements UserDetailsService {
             String resetCode = decodedJWT.getSubject();
             String email = decodedJWT.getIssuer();
 
+            log.info(code);
+            log.info(resetCode);
+            log.info(email);
             User user = userRepo.findByEmailAndResetCode(email, resetCode);
             if(user == null)
             {
@@ -482,7 +494,11 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public Response confirmToken(String token){
-        ConfirmToken confirmToken = confirmTokenService.getToken(token).orElseThrow(()-> new ApiRequestException("Token not found"));
+        Algorithm algorithm = Algorithm.HMAC256("yUl7speiRyENloYHUGJEFM0OzeBbcskjDB74A2cvZHqjpojeiSceNOARQcJmsev4".getBytes());
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        DecodedJWT decodedJWT = verifier.verify(token);
+        String resetCode = decodedJWT.getSubject();
+        ConfirmToken confirmToken = confirmTokenService.getToken(resetCode).orElseThrow(()-> new ApiRequestException("Token not found"));
         if (confirmToken.getConfirmedAt() != null) {
             throw new ApiRequestException("Email is already confirmed");
         }
