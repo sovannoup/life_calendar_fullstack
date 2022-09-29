@@ -1,5 +1,6 @@
 package com.life_calendar.life_calendar.controller.api.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class SignupRequest {
 
     @Past
     @NotNull(message = "Birthday is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthday;
 
     @NotBlank(message = "Password should not be blank")

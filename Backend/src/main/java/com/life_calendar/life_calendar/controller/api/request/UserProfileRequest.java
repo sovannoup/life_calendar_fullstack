@@ -1,5 +1,6 @@
 package com.life_calendar.life_calendar.controller.api.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
@@ -24,5 +25,6 @@ public class UserProfileRequest {
     private String newPassword;
 
     @NotNull(message = "Birthday is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthday;
 }

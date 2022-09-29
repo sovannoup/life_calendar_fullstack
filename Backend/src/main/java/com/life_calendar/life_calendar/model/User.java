@@ -1,5 +1,6 @@
 package com.life_calendar.life_calendar.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,6 +32,7 @@ public class User implements UserDetails {
     private String email;
     @Past
     @NotNull(message = "Birthday is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthday;
 
     @NotBlank(message = "Password should not be blank")
