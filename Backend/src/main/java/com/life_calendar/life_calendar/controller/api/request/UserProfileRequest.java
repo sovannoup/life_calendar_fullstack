@@ -2,6 +2,7 @@ package com.life_calendar.life_calendar.controller.api.request;
 
 import lombok.Data;
 import javax.validation.constraints.*;
+import java.time.LocalDate;
 
 @Data
 public class UserProfileRequest {
@@ -23,5 +24,5 @@ public class UserProfileRequest {
     private String newPassword;
 
     @NotNull(message = "Birthday is required")
-    private  CharSequence birthday;
+    private LocalDate birthday;
 }

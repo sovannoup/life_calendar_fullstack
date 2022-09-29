@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,9 +21,9 @@ import java.util.Collections;
 public class User implements UserDetails {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @NotBlank(message = "Firstname should not be blank")
-    @NotNull(message = "Firstname is required")
-    @Size(max = 30, message = "Firstname must not be more than 30 digit")
+    @NotBlank(message = "Username should not be blank")
+    @NotNull(message = "Username is required")
+    @Size(max = 30, message = "Username must not be more than 30 digit")
     private String username;
     @NotBlank(message = "Email should not be blank")
     @NotNull(message = "Email is required")
@@ -30,7 +31,7 @@ public class User implements UserDetails {
     private String email;
     @Past
     @NotNull(message = "Birthday is required")
-    private LocalDateTime birthday;
+    private LocalDate birthday;
 
     @NotBlank(message = "Password should not be blank")
     @NotNull(message = "Password is required")
@@ -43,7 +44,7 @@ public class User implements UserDetails {
     private Boolean enabled = false;
     private String resetCode = null;
 
-    public User(String username, String email, LocalDateTime birthday, String password ,UserRole userRole) {
+    public User(String username, String email, LocalDate birthday, String password ,UserRole userRole) {
         this.username = username;
         this.email = email;
         this.birthday = birthday;

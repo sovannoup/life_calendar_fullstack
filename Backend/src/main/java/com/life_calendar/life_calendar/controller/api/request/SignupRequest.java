@@ -6,6 +6,7 @@ import lombok.Data;
 
 import javax.persistence.Column;
 import javax.validation.constraints.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -24,7 +25,7 @@ public class SignupRequest {
 
     @Past
     @NotNull(message = "Birthday is required")
-    private LocalDateTime birthday;
+    private LocalDate birthday;
 
     @NotBlank(message = "Password should not be blank")
     @NotNull(message = "Password is required")

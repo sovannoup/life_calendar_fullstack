@@ -6,6 +6,9 @@ server:
 
 spring:
   datasource:
+#    password: admin
+#    url: jdbc:postgresql://localhost:5432/lifeCalendar
+#    username: postgres
     url: jdbc:postgresql://postgresql:5432/lifeCalendar
     username: postgres
     password: iamadmin

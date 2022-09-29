@@ -327,6 +327,7 @@ public class UserService implements UserDetailsService {
     public Response getHomePage(GetWeeklyNoteRequest request) {
 
         Map<String, Object> result = new HashMap<>();
+        boolean isTodayNote = false;
         String email = getEmailFromToken();
 
         //        Find user
@@ -379,9 +380,17 @@ public class UserService implements UserDetailsService {
 //                Note temp = new Note(calendar.getBoxId(), email ,dailyDate.get(i), "", LocalDateTime.now());
 //                notes.add(temp);
 //            }
+            result.put("isTodayNote", isTodayNote);
             result.put("notes", notes);
         }else {
             List<Note> notes =  noteRepo.findByBoxIdAndEmail(calendar.getBoxId(), email);
+            notes.forEach((each) ->{
+                if (Objects.equals(each.getNoteDate(), LocalDate.now()) && each.getContent() != null){
+                    result.put("isTodayNote", true);
+                }else{
+                    result.put("isTodayNote", isTodayNote);
+                }
+            });
             result.put("notes", notes);
 //            if (!notes.isEmpty()){
 //                result.put("notes", notes);
@@ -412,7 +421,7 @@ public class UserService implements UserDetailsService {
                 throw new ApiRequestException("Invalid current password");
             }
             String newEncode = bCryptPasswordEncoder.encode(request.getNewPassword());
-            userRepo.updateUserProfile(request.getUsername(), newEncode , LocalDateTime.parse(request.getBirthday()), request.getEmail());
+            userRepo.updateUserProfile(request.getUsername(), newEncode , request.getBirthday(), request.getEmail());
             log.info("Updating info with password input");
         }else{
             boolean isUser = userRepo.existsByEmail(request.getEmail());
@@ -420,7 +429,7 @@ public class UserService implements UserDetailsService {
             {
                 throw new ApiRequestException("Couldn't find user with that Email");
             }
-            userRepo.updateProfileWithoutPassword(request.getUsername(), LocalDateTime.parse(request.getBirthday()), request.getEmail());
+            userRepo.updateProfileWithoutPassword(request.getUsername(), request.getBirthday(), request.getEmail());
             log.info("Updating info without password input");
         }
 
