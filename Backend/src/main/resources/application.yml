@@ -6,12 +6,12 @@ server:
 
 spring:
   datasource:
-    password: admin
-    url: jdbc:postgresql://localhost:5432/lifeCalendar
+    # password: admin
+    # url: jdbc:postgresql://localhost:5432/lifeCalendar
+    # username: postgres
+    url: jdbc:postgresql://postgresql:5432/lifeCalendar
     username: postgres
-#    url: jdbc:postgresql://postgresql:5432/lifeCalendar
-#    username: postgres
-#    password: iamadmin
+    password: iamadmin
   jpa:
     hibernate:
       ddl-auto: update
