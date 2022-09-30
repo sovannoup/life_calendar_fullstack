@@ -17,7 +17,12 @@ function stringWithlimit(string, limit){
     return subString
 }
 
+
+
+
 export default function DailyMiniNoteDisplay({ date, message, image }) {
+    const title = new Date(date).toDateString()
+    // console.log('title: ', title)
     const isNoImg = image === null || image === undefined
     const messageLength = message.split(' ').length
 
@@ -25,7 +30,7 @@ export default function DailyMiniNoteDisplay({ date, message, image }) {
     return (
         <Container>
             <Header>
-                <HeaderText>{date}</HeaderText>
+                <HeaderText>{title}</HeaderText>
                 <ZoomIconContainer>
                     <svg width="11" height="12" viewBox="0 0 11 12" fill='black' xmlns="http://www.w3.org/2000/svg">
                         <path d="M4.27778 11.5V10.2778H2.08389L4.83389 7.52778L3.97222 6.66611L1.22222 9.41611V7.22222H0V11.5H4.27778ZM7.02778 5.33389L9.77778 2.58389V4.77778H11V0.5H6.72222V1.72222H8.91611L6.16611 4.47222L7.02778 5.33389Z" />
@@ -58,11 +63,10 @@ export default function DailyMiniNoteDisplay({ date, message, image }) {
                 {/* <Image src="image.jpeg" width="500" height="600"></Image> */}
                 {isNoImg ? null : (
                     <Image>
-                        <img src={image} alt="Trulli" height='280' margin-top='30px' />
+                        <img src={image} alt="Trulli" height='250' margin-top='30px' />
                     </Image>
                 )
                 }
-
 
             </Body>
         </Container>

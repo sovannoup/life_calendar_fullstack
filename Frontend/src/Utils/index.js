@@ -10,14 +10,19 @@ function getWeekNum(date) {
     return null
 }
 
-function UsedBox(birthday){
+function UsedBox(birthday) {
     const current_date = new Date()
     const birthday_weeknum = getWeekNum(new Date(birthday))
     return (52 - birthday_weeknum) + (((current_date.getFullYear() - birthday.getFullYear() - 2) * 52) + getWeekNum(current_date))
 }
 
 
-function getTotal_Blank_Used_Remain_Box(birthday){
+function getTotal_Blank_Used_Remain_Box(birthday) {
+    if (birthday === '') {
+        let total_used = 0
+        let total_remain = 4680
+        return [total_used, total_remain]
+    }
     const current_date = new Date()
     let total_blank = 0
     let total_used = 0
@@ -27,9 +32,9 @@ function getTotal_Blank_Used_Remain_Box(birthday){
 
     total_blank = birthday_weeknum - 1
     total_used = (52 - birthday_weeknum) + (((current_date.getFullYear() - birthday.getFullYear() - 1) * 52) + getWeekNum(current_date))
-    total_remain = (91 * 52) - (total_blank + total_used)
+    total_remain = (91 * 52) - (total_blank + total_used) + total_blank
 
-    return [total_blank, total_used, total_remain]
+    return [total_used, total_remain]
 }
 
 
@@ -52,13 +57,34 @@ function getDateOfISOWeek(w, y) {
 
     const start_date = ISOweekStart
     const end_date = addDays(start_date, 6)
-    return {start_date, end_date};
+    return { start_date, end_date };
 }
+
+function addZero(num) {
+    const num_string = num.toString()
+    if (num_string.length === 1) {
+        return "0" + num_string
+    }
+    return num
+}
+
+// function dateString(date) {
+//     const dateObj = new Date(date)
+
+//     return `${addZero(dateObj.getDate())}-${addZero(dateObj.getMonth() + 1)}-${dateObj.getFullYear()}`
+// }
+
+function dateStringReverse(date) {
+    const dateObj = new Date(date)
+    return `${dateObj.getFullYear()}-${addZero(dateObj.getMonth() + 1)}-${addZero(dateObj.getDate())}`
+}
+
 
 
 export {
     UsedBox,
     getWeekNum,
     getTotal_Blank_Used_Remain_Box,
-    getDateOfISOWeek
+    getDateOfISOWeek,
+    dateStringReverse
 }

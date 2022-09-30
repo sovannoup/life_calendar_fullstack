@@ -1,0 +1,87 @@
+.profilenote-comp {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  padding: 10px;
+  border-radius: 5px;
+  box-sizing: border-box;
+  /* box-shadow: 4px 4px 4px rgba(230, 244, 241, 0.5),
+    -4px -4px 4px rgba(230, 244, 241, 0.5); */
+  border: 1px solid #e2e2e2;
+  background-color: #ffffff;
+}
+
+.profilenote-title-con {
+  width: 100%;
+  height: 20px;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+}
+.profilenote-title {
+  font-family: "Nunito", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #002834;
+}
+
+.profilenote-img-con {
+  width: 100%;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.profilenote-img {
+  max-width: 200px;
+  max-height: 120px;
+  object-fit: cover;
+}
+
+.profilenote-text-con {
+  width: 180px;
+  height: 150px;
+}
+.profilenote-text {
+  font-family: "Nunito", sans-serif;
+  font-size: 12px;
+  color: #002834;
+  /* text line limit */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 9; /* number of lines to show */
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.profilenote-text-n-img-con {
+  width: 180px;
+  height: 18px;
+}
+.profilenote-text-n-img {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1; /* number of lines to show */
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* On Hover */
+.profilenote-comp:hover {
+  cursor: pointer;
+  /* box-shadow: 5px 5px #e5e7e7; */
+  /* box-shadow: 4px 4px 4px rgba(203, 218, 214, 0.5),
+    -4px -4px 4px rgba(230, 244, 241, 0.5); */
+  /* background-color: #0799a6; */
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+}
+/* .profilenote-comp:hover .profilenote-title {
+  color: #ffffff;
+}
+.profilenote-comp:hover .profilenote-text {
+  color: #ffffff;
+} */

@@ -1,5 +1,5 @@
 .TopNav-con {
-  overflow: hidden;
+  /* overflow: hidden; */
   width: calc(100% - 70px);
   display: flex;
   flex-direction: row;
@@ -83,4 +83,9 @@
   padding: 0 10px 0 10px;
   font-size: 18px;
   color: #002834;
+  text-decoration: none;
+}
+
+.TopNav-profile-p-cover:hover{
+  color: blue
 }

@@ -24,7 +24,7 @@ function WeeklyMeasurement({ direction }) {
     }
     return (
         measurement.map((num, index) => (
-            <MeasurementUnit index={index} direction={direction}>{num}</MeasurementUnit>
+            <MeasurementUnit key={num} index={index} direction={direction}>{num}</MeasurementUnit>
         ))
     )
 }
@@ -52,7 +52,7 @@ export default function CalendarMeasurement({ children }) {
                             <svg 
                                 width="300" 
                                 height="20" 
-                                ArrowDown             viewBox="0 0 200 14" 
+                                viewBox="0 0 200 14" 
                                 transform='rotate(-180)' 
                                 fill="none" 
                                 xmlns="http://www.w3.org/2000/svg">

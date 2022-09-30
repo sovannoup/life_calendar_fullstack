@@ -1,0 +1,107 @@
+.profile-comp {
+  width: 450px;
+  height: 360px;
+  /* padding: 12px; */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  background-color: #ffffff;
+}
+
+.profile-info-con {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.profile-info-img-con {
+  width: 100px;
+  height: 100px;
+}
+.profile-info-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 100px;
+}
+.profile-info-details-con {
+  width: 100%;
+  height: 90px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+.profile-info-details-h1 {
+  font-family: "Nunito", sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #002834;
+}
+.profile-info-details-p {
+  font-family: "Nunito", sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  color: #002834;
+}
+
+.profile-button-con {
+  width: 100%;
+  height: 50px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+}
+.profile-button-edit-con {
+  width: 185px;
+  height: 40px;
+  cursor: pointer;
+  padding: 0 10px 0;
+  border: solid 1px #0799a6;
+  border-radius: 8px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+  background-color: #ffffff;
+}
+.profile-button-edit-img-con {
+  width: 25px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.profile-button-edit-img {
+  width: 20px;
+  height: 20px;
+}
+.profile-button-edit-h1-con {
+  width: 75px;
+  height: 100%;
+  padding: 5px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.profile-button-edit-h1 {
+  font-size: 14px;
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  color: #0799a6;
+}
+
+/* Hover Style */
+.profile-button-edit-con:hover {
+  background-color: #0799a6;
+}
+.profile-button-edit-con:hover .profile-button-edit-h1 {
+  color: #ffffff;
+}

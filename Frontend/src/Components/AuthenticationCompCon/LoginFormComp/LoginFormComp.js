@@ -3,29 +3,24 @@ import { useFormik } from "formik";
 import { loginSchema } from "./LoginFormSchemas";
 import InvalidMessageComp from "../../InvalidMessageComp/InvalidMessageComp";
 import { Link } from "react-router-dom";
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import LoadingIndicatorComp from "../../LoadingIndicatorComp/LoadingIndicatorComp";
+// import { Circles } from  'react-loader-spinner'
+// import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
+// https://github.com/mhnpd/react-loader-spinner/issues/124
+
+import UserAPI from "../../../api/user";
 
 function LoginFormComp() {
+  const navigate = useNavigate();
   const [loginFail, setLoginFail] = useState(false);
-  const status = 201;
+  const [isLoading, setIsLoading] = useState(false);
   const unsucessfulMessage =
     "Your login was unsuccessful, please review your email or password.";
 
   const forgetPasswordClicked = () => {
     console.log("Forget Password");
-  };
-
-  const onLogin = () => {
-    // setLoginFail(true);
-    // console.log(loginFail);
-    if (status !== 200) {
-      setLoginFail(true);
-      //   console.log("Login unsucessful");
-    } else {
-      setLoginFail(false);
-      //   console.log("Login successful");
-    }
   };
 
   const signUpClicked = () => {
@@ -39,22 +34,38 @@ function LoginFormComp() {
       save_login: "",
     },
     validationSchema: loginSchema,
-    onLogin,
+    onSubmit: (value) => {
+      setIsLoading(true);
+      const email = value.email;
+      const password = value.password;
+      const body = { email, password };
+      const response = UserAPI.login(body);
+      response
+        .then((result) => {
+          const data = result.data;
+          if (data.status === 200) {
+            console.log("save login: ", value.save_login);
+            if (value.save_login) {
+              localStorage.setItem("token", data.result.token);
+            } else {
+              sessionStorage.setItem("token", data.result.token);
+            }
+
+            navigate("/home");
+            window.location.reload();
+          } else {
+            setLoginFail(true);
+          }
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          setLoginFail(true);
+          setIsLoading(false);
+        });
+    },
   });
 
-  //   console.log(formik.errors);
-  //   console.log(formik.setTouched.email);
-
   return (
-    // <div
-    //   style={{
-    //     width: "100vw",
-    //     height: "100vh",
-    //     display: "flex",
-    //     justifyContent: "center",
-    //     alignItems: "center",
-    //   }}
-    // >
     <div>
       <form onSubmit={formik.handleSubmit} className="loginform-form-comp">
         <InvalidMessageComp status={loginFail} message={unsucessfulMessage} />
@@ -125,19 +136,34 @@ function LoginFormComp() {
           </div>
         </div>
 
-        <input
-          className="loginform-form-input loginform-form-submit"
-          type="submit"
-          value="LOGIN"
-          onClick={() => onLogin()}
-        />
+        <div style={{ width: 350, height: 75, position: "relative" }}>
+          <input
+            className="loginform-form-input loginform-form-submit"
+            type="submit"
+            value="LOGIN"
+            onClick={formik.handleSubmit}
+          />
+
+          {isLoading && (
+            <div
+              style={{
+                position: "absolute",
+                top: 13,
+                right: 150,
+                backgroundColor: "#26b9b3",
+              }}
+            >
+              <LoadingIndicatorComp />
+            </div>
+          )}
+        </div>
       </form>
 
       <div
         onClick={() => signUpClicked()}
-        className="loginsc-leftside-text-con loginsc-leftside-signup-con"
+        className="loginform-leftside-text-con"
       >
-        <p className="loginsc-leftside-text">
+        <p className="loginform-leftside-text">
           Don’t have an account?{" "}
           <Link
             to="/signup"

@@ -28,7 +28,7 @@ export default function SideNav() {
       </NavLink>
       <div className="middle">
         {SideNavItems.map((item, index) => (
-          <div className="nav-container">
+          <div className="nav-container" key={item.to}>
             { location.pathname.match(/^\/[a-z]*/)[0] === item.to && <div className="half-box"></div>}
             {/* { location.pathname === item.to && <p>{location.pathname}</p>} */}
             <div className="icon">
@@ -37,7 +37,11 @@ export default function SideNav() {
               style={ () => ({
                 paddingLeft: location.pathname.match(/^\/[a-z]*/)[0] === item.to ? '11px' : '20px'
               })}
-              to={item.to} 
+              onClick={ index === 3 ? () => {
+                localStorage.clear()
+                sessionStorage.clear()
+              } : null}
+              to={item.to}
               >{item.icon}</NavLink>
             </div>
             

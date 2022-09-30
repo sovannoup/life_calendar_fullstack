@@ -1,0 +1,33 @@
+.totalnote-comp {
+  width: 210px;
+  height: 210px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+}
+
+.totalnote-h1-con {
+  width: 100%;
+  margin-bottom: 15px;
+}
+.totalnote-h1 {
+  font-family: "Nunito", sans-serif;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: #002834;
+}
+
+.totalnote-p-con {
+  width: 100%;
+}
+.totalnote-p {
+  font-family: "Nunito", sans-serif;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 400;
+  color: #002834;
+}

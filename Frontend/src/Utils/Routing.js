@@ -8,7 +8,7 @@ import {
 
 import HomeScreen from "../Screens/HomeScreen/HomeScreen";
 import LoginScreen from "../Screens/LoginScreen/LoginScreen";
-import NoteScreen from "../Screens/NoteScreen/NoteScreen";
+import ProfileScreen from "../Screens/ProfileScreen/ProfileScreen";
 import SettingScreen from "../Screens/SettingScreen/SettingScreen";
 // import LayoutScreen from "../Components/LayoutCompCon/LayoutComp/LayoutComp";
 import LayoutScreen from "../Components/LayoutCompCon";
@@ -28,7 +28,7 @@ function Routing() {
 
           <Route path="/" element={<Navigate replace to="/home" />} />
           <Route path="home" element={<HomeScreen />} />
-          <Route path="note" element={<NoteScreen />} />
+          <Route path="profile" element={<ProfileScreen />} />
           <Route path="setting" element={<SettingScreen />}>
             <Route
               path="/setting"

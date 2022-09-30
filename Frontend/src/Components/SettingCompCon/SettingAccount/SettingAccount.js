@@ -54,13 +54,8 @@ export default function SettingAccount() {
                 .test('is_new_pass_error', 'Required', () => isPassordError() || formik.values.newPassword !== "" ),
             birthday: Yup.date()
         }),
-
-        
-
-
         onSubmit: values => {
                 alert(JSON.stringify(values, null, 2))
-            
         }
     })
 

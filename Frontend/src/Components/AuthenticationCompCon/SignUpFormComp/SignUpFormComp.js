@@ -3,44 +3,67 @@ import { useFormik } from "formik";
 import { signUpSchema } from "./SignUpFormSchemas";
 import InvalidMessageComp from "../../InvalidMessageComp/InvalidMessageComp";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import UserAPI from "../../../api/user";
+import LoadingIndicatorComp from "../../LoadingIndicatorComp/LoadingIndicatorComp";
 
 function SignUpFormComp() {
+  const navigate = useNavigate();
   const [loginFail, setLoginFail] = useState(false);
-  const unsucessfulMessage =
-    "Your sign up was unsuccessful, please try again later.";
+  const [isLoading, setIsLoading] = useState(false);
+  // const unsucessfulMessage = "Your sign up was unsuccessful, please try again later.";
+  const [errorMessage, setErrorMessage] = useState(
+    "Your sign up was unsuccessful, please try again later."
+  );
 
-  const onSignUp = () => {
-    setLoginFail(true);
-    console.log(loginFail);
+  const loginClicked = () => {
+    console.log("Sign Up");
   };
 
   const formik = useFormik({
     initialValues: {
-      name: "",
+      username: "",
       email: "",
       password: "",
+      birthday: sessionStorage.birthday,
     },
     validationSchema: signUpSchema,
-    onSignUp,
+    onSubmit: (value) => {
+      // const birthday = new Date(sessionStorage.getItem('birthday'))
+      // console.log(birthday)
+      setIsLoading(true);
+      // const body = { ...value, birthday: "2001-05-19T05:47:08.644" };
+      const body = { ...value };
+      console.log(body);
+      const response = UserAPI.signUp(body);
+      response
+        .then((result) => {
+          const data = result.data;
+          if (data.status === 200) {
+            // console.log(data.result.token)
+            // localStorage.setItem("token", data.result.token);
+            navigate("/home");
+          } else {
+            setLoginFail(true);
+          }
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          const data = error.response.data;
+          if (data.status === 400) {
+            // setErrorMessage(data.message);
+            setLoginFail(true);
+            setIsLoading(false);
+          }
+          console.log(data);
+        });
+    },
   });
 
-  //   console.log(formik.errors);
-  //   console.log(formik.setTouched.email);
-  console.log(formik.errors);
-
   return (
-    // <div
-    //   style={{
-    //     width: "100vw",
-    //     height: "100vh",
-    //     display: "flex",
-    //     justifyContent: "center",
-    //     alignItems: "center",
-    //   }}
-    // >
     <div>
       <form onSubmit={formik.handleSubmit} className="signupform-form-comp">
-        <InvalidMessageComp status={loginFail} message={unsucessfulMessage} />
+        <InvalidMessageComp status={loginFail} message={errorMessage} />
 
         <label className="signupform-form-label" htmlFor="email">
           Name
@@ -48,21 +71,27 @@ function SignUpFormComp() {
         <br />
         <div style={{ height: 60 }}>
           <input
-            value={formik.values.name}
+            value={formik.values.username}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             className={
-              formik.errors.name && formik.touched.name && formik.values.name
+              formik.errors.username &&
+              formik.touched.username &&
+              formik.values.username
                 ? "signupform-form-input signupform-form-input-error"
                 : "signupform-form-input"
             }
             type="text"
-            name="name"
+            name="username"
             placeholder="john doe"
           />
-          {formik.errors.name && formik.touched.name && formik.values.name && (
-            <p className="signupform-form-text-error">{formik.errors.name}</p>
-          )}
+          {formik.errors.username &&
+            formik.touched.username &&
+            formik.values.username && (
+              <p className="signupform-form-text-error">
+                {formik.errors.username}
+              </p>
+            )}
         </div>
         <br />
 
@@ -124,13 +153,78 @@ function SignUpFormComp() {
         </div>
         <br />
 
-        <input
-          className="signupform-form-input signupform-form-submit"
-          type="submit"
-          value="SIGN UP"
-          onClick={() => onSignUp()}
-        />
+        <label className="signupform-form-label" htmlFor="Date of Birth">
+          Date of Birth
+        </label>
+        <br />
+        <div style={{ height: 60 }}>
+          <input
+            value={formik.values.birthday}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            className={
+              formik.errors.birthday &&
+              formik.touched.birthday &&
+              formik.values.birthday
+                ? "signupform-form-input signupform-form-input-error"
+                : "signupform-form-input"
+            }
+            style={
+              formik.values.birthday
+                ? { color: "#000000" }
+                : { color: "#83859c" }
+            }
+            type="date"
+            name="birthday"
+            placeholder="min. 8 characters"
+          />
+          {formik.errors.birthday &&
+            formik.touched.birthday &&
+            formik.values.birthday && (
+              <p className="signupform-form-text-error">
+                {formik.errors.birthday}
+              </p>
+            )}
+        </div>
+        <br />
+
+        <div style={{ width: 350, height: 75, position: "relative" }}>
+          <input
+            className="signupform-form-input signupform-form-submit"
+            type="submit"
+            value="SIGN UP"
+            onClick={formik.handleSubmit}
+          />
+
+          {isLoading && (
+            <div
+              style={{
+                position: "absolute",
+                top: 11,
+                right: 145,
+                backgroundColor: "#26b9b3",
+              }}
+            >
+              <LoadingIndicatorComp />
+            </div>
+          )}
+        </div>
       </form>
+
+      <div
+        onClick={() => loginClicked()}
+        className="signupform-leftside-text-con"
+      >
+        <p className="signupform-leftside-text">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            style={{ color: "inherit", textDecoration: "none" }}
+          >
+            <b style={{ cursor: "pointer" }}>Login</b>
+          </Link>
+        </p>
+      </div>
     </div>
   );
 }
