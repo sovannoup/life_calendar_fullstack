@@ -1,8 +1,8 @@
 FROM node:16.17.0 as build
 WORKDIR /app/Frontend
-COPY package*.json ./
+COPY package*.json /app/Frontend/
 RUN npm --verbose install
-COPY . .
+COPY . /app/Frontend/
 RUN npm run build
 
 # production environment
