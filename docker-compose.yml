@@ -19,20 +19,20 @@ services:
       - 3001:3001
     depends_on:
       - postgresql
-  frontend:
-    container_name: frontend
-    build: ./Frontend
-    ports:
-      - 3000:80
-    depends_on:
-      - backend
+  # frontend:
+  #   container_name: frontend
+  #   build: ./Frontend
+  #   ports:
+  #     - 3000:80
+  #   depends_on:
+  #     - backend
   nginx:
     container_name: nginx
     image: proxy
     build: ./.nginx
     depends_on:
       - backend
-      - frontend
+      # - frontend
     ports:
       - 443:443
 
