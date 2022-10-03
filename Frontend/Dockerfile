@@ -1,6 +1,7 @@
 FROM node:16.17.0 as build
 WORKDIR /app/Frontend
 COPY package*.json /app/Frontend/
+ENV NODE_OPTIONS=--max_old_space_size=1024
 RUN npm --verbose install
 COPY . /app/Frontend/
 RUN npm run build
